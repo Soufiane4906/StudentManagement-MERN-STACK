@@ -50,22 +50,24 @@ Ce projet consiste à finaliser une application de gestion des étudiants, cours
    git clone https://github.com/votre-utilisateur/votre-projet.git
 Installer les dépendances :
 
-bash
+  ```bash
 
 cd votre-projet
 npm install
+```
 Lancer l'application en mode développement :
 
-bash
+  ```bash
 
 npm start
+```
 Containeriser l'application avec Docker :
 
-bash
+  ```bash
 
 docker-compose up --build
 Déployer l'application dans le cloud en suivant les instructions spécifiques à votre fournisseur.
-
+```
 Contribution
 Les contributions sont les bienvenues ! Veuillez ouvrir une issue pour discuter des changements que vous souhaitez apporter.
 
