@@ -52,29 +52,29 @@ initializeStaticUsers();
 //   }
 // }));
 
-// passport.use(new GitHubStrategy({
-//   clientID: process.env.GITHUB_CLIENT_ID,
-//   clientSecret: process.env.GITHUB_CLIENT_SECRET,
-//   callbackURL: '/api/auth/github/callback'
-// }, async (accessToken, refreshToken, profile, done) => {
-//   try {
-//     let user = await User.findOne({ email: profile.emails[0].value });
-//
-//     if (!user) {
-//       user = new User({
-//         email: profile.emails[0].value,
-//         password: Math.random().toString(36).slice(-8), // Random password
-//         role: 'STUDENT', // OAuth users are always students
-//         githubId: profile.id
-//       });
-//       await user.save();
-//     }
-//
-//     return done(null, user);
-//   } catch (error) {
-//     return done(error, null);
-//   }
-// }));
+ passport.use(new GitHubStrategy({
+  clientID:  "Ov23lijgD1QORBmAmhJC",
+  clientSecret: "c6d473a311af702d3d3a271fa0f88c236e47e55a",
+  callbackURL: '/api/auth/github/callback'
+}, async (accessToken, refreshToken, profile, done) => {
+  try {
+    let user = await User.findOne({ email: profile.emails[0].value });
+
+    if (!user) {
+      user = new User({
+        email: profile.emails[0].value,
+        password: Math.random().toString(36).slice(-8), // Random password
+        role: 'STUDENT', // OAuth users are always students
+        githubId: profile.id
+      });
+      await user.save();
+    }
+
+    return done(null, user);
+  } catch (error) {
+    return done(error, null);
+  }
+}));
 
 // Regular email/password login
 router.post('/login', async (req, res) => {
@@ -100,9 +100,16 @@ console.log('token', token);
 
 // Register (disabled for static users and OAuth only)
 router.post('/register', async (req, res) => {
-  res.status(403).json({ message: 'Registration is disabled. Please use OAuth or contact administrator.' });
+  try {
+    const { email, password } = req.body;
+    const user = new User({ email, password, role: 'STUDENT' });
+    await user.save();
+    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET || 'secret' );
+    res.json({ user, token });
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
 });
-
 // OAuth routes
 router.get('/google',
   passport.authenticate('google', { scope: ['profile', 'email'] })
@@ -111,7 +118,7 @@ router.get('/google',
 router.get('/google/callback',
   passport.authenticate('google', { session: false }),
   (req, res) => {
-    const token = jwt.sign({ userId: req.user._id }, process.env.JWT_SECRET);
+    const token = jwt.sign({ userId: req.user._id }, process.env.JWT_SECRET || 'secret' );
     res.redirect(`/auth/callback?token=${token}`);
   }
 );
@@ -123,7 +130,7 @@ router.get('/github',
 router.get('/github/callback',
   passport.authenticate('github', { session: false }),
   (req, res) => {
-    const token = jwt.sign({ userId: req.user._id }, process.env.JWT_SECRET);
+    const token = jwt.sign({ userId: req.user._id }, process.env.JWT_SECRET || 'secret' );
     res.redirect(`/auth/callback?token=${token}`);
   }
 );

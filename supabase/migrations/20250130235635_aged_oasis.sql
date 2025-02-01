@@ -18,15 +18,15 @@
     - students
       - id (uuid, primary key)
       - user_id (references auth.users)
-      - first_name (text)
-      - last_name (text)
-      - student_id (text, unique)
-      - enrollment_date (date)
+      - firstName (text)
+      - lastName (text)
+      - studentId (text, unique)
+      - enrollmentDate (date)
       - created_at (timestamp)
     
     - grades
       - id (uuid, primary key)
-      - student_id (references students)
+      - studentId (references students)
       - course_id (references courses)
       - grade (numeric)
       - date (date)
@@ -62,10 +62,10 @@ CREATE TABLE courses (
 CREATE TABLE students (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id uuid REFERENCES auth.users NOT NULL,
-  first_name text NOT NULL,
-  last_name text NOT NULL,
-  student_id text UNIQUE NOT NULL,
-  enrollment_date date NOT NULL,
+  firstName text NOT NULL,
+  lastName text NOT NULL,
+  studentId text UNIQUE NOT NULL,
+  enrollmentDate date NOT NULL,
   created_at timestamptz DEFAULT now(),
   UNIQUE(user_id)
 );
@@ -73,7 +73,7 @@ CREATE TABLE students (
 -- Create grades table
 CREATE TABLE grades (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  student_id uuid REFERENCES students NOT NULL,
+  studentId uuid REFERENCES students NOT NULL,
   course_id uuid REFERENCES courses NOT NULL,
   grade numeric NOT NULL CHECK (grade >= 0 AND grade <= 20),
   date date NOT NULL,
@@ -163,7 +163,7 @@ CREATE POLICY "Students can view their own grades"
   USING (
     EXISTS (
       SELECT 1 FROM students
-      WHERE students.id = grades.student_id
+      WHERE students.id = grades.studentId
       AND students.user_id = auth.uid()
     )
   );

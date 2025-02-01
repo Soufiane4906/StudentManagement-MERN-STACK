@@ -34,13 +34,38 @@ router.get('/student/:studentId', auth, async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 });
+import mongoose from 'mongoose';
+import Student from "../models/Student.js";
+import Course from "../models/Course.js";
 
-// Create grade (ADMIN, SCOLARITE)
 router.post('/', auth, checkRole(['ADMIN', 'SCOLARITE']), async (req, res) => {
   try {
-    const grade = new Grade(req.body);
-    await grade.save();
-    res.status(201).json(grade);
+    const { studentId, courseId, grade, date } = req.body;
+
+    // Vérifier que studentId et courseId sont des ObjectId valides
+    if (!mongoose.Types.ObjectId.isValid(studentId)) {
+      return res.status(400).json({ message: 'Invalid studentId' });
+    }
+    if (!mongoose.Types.ObjectId.isValid(courseId)) {
+      return res.status(400).json({ message: 'Invalid courseId' });
+    }
+
+    // Vérifier que l'étudiant et le cours existent
+    const studentExists = await Student.findById(studentId);
+    if (!studentExists) {
+      return res.status(404).json({ message: 'Student not found' });
+    }
+
+    const courseExists = await Course.findById(courseId);
+    if (!courseExists) {
+      return res.status(404).json({ message: 'Course not found' });
+    }
+
+    // Créer la note
+    const gradeDoc = new Grade({ studentId, courseId, grade, date });
+    await gradeDoc.save();
+
+    res.status(201).json(gradeDoc);
   } catch (error) {
     res.status(400).json({ message: error.message });
   }

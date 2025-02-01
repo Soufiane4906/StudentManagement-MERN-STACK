@@ -31,7 +31,7 @@ export function CourseList() {
     e.preventDefault();
     try {
       if (selectedCourse) {
-        await api.patch(`/courses/${selectedCourse.id}`, formData);
+        await api.patch(`/courses/${selectedCourse._id}`, formData);
       } else {
         await api.post('/courses', formData);
       }
@@ -92,7 +92,7 @@ export function CourseList() {
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
             {courses.map((course) => (
-              <tr key={course.id}>
+              <tr key={course._id}>
                 <td className="px-6 py-4 whitespace-nowrap">{course.name}</td>
                 <td className="px-6 py-4">{course.description}</td>
                 <td className="px-6 py-4 whitespace-nowrap">{course.credits}</td>
@@ -117,7 +117,7 @@ export function CourseList() {
                     variant="outline"
                     size="sm"
                     className="text-red-600 hover:text-red-700"
-                    onClick={() => handleDelete(course.id)}
+                    onClick={() => handleDelete(course._id)}
                   >
                     <Trash2 className="w-4 h-4" />
                   </Button>

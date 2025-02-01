@@ -8,7 +8,7 @@ export const auth = async (req, res, next) => {
       throw new Error();
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'secret' ) ;
     const user = await User.findById(decoded.userId);
 
     if (!user) {

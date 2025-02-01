@@ -1,5 +1,6 @@
 import express from 'express';
 import Student from '../models/Student.js';
+import User from '../models/User.js';
 import { auth, checkRole } from '../middleware/auth.js';
 
 const router = express.Router();
@@ -37,9 +38,27 @@ router.get('/:id', auth, async (req, res) => {
 // Create student (ADMIN, SCOLARITE)
 router.post('/', auth, checkRole(['ADMIN', 'SCOLARITE']), async (req, res) => {
   try {
-    const student = new Student(req.body);
+    const { email, password, firstName, lastName, studentId, enrollmentDate } = req.body;
+
+    // Créer un nouvel utilisateur
+    const user = new User({
+      email,
+      password,
+      role: 'STUDENT', // Par défaut, le rôle est STUDENT
+    });
+    await user.save();
+
+    // Créer un nouvel étudiant avec l'ID de l'utilisateur
+    const student = new Student({
+      userId: user._id,
+      firstName,
+      lastName,
+      studentId,
+      enrollmentDate,
+    });
     await student.save();
-    res.status(201).json(student);
+
+    res.status(201).json({ user, student });
   } catch (error) {
     res.status(400).json({ message: error.message });
   }

@@ -16,16 +16,16 @@ export interface Course {
 export interface Student {
   id: string;
   user_id: string;
-  first_name: string;
-  last_name: string;
-  student_id: string;
-  enrollment_date: string;
+  firstName: string;
+  lastName: string;
+  studentId: string;
+  enrollmentDate: string;
 }
 
 export interface Grade {
   id: string;
-  student_id: string;
-  course_id: string;
+  studentId: string;
+  courseId: string;
   grade: number;
   date: string;
 }

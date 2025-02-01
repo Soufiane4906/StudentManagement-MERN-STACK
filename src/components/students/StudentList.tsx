@@ -25,6 +25,7 @@ export function StudentList() {
     try {
       const response = await api.get('/students');
       setStudents(response.data);
+      console.log(response.data);
     } catch (error) {
       console.error('Error fetching students:', error);
     }
@@ -34,7 +35,7 @@ export function StudentList() {
     e.preventDefault();
     try {
       if (selectedStudent) {
-        await api.patch(`/students/${selectedStudent.id}`, formData);
+        await api.patch(`/students/${selectedStudent._id}`, formData);
       } else {
         await api.post('/students', formData);
       }
@@ -63,6 +64,11 @@ export function StudentList() {
         console.error('Error deleting student:', error);
       }
     }
+  };
+  const formatDateForInput = (dateString: string) => {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    return date.toISOString().split('T')[0]; // Extracts YYYY-MM-DD
   };
 
   return (
@@ -112,16 +118,16 @@ export function StudentList() {
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
             {students.map((student) => (
-              <tr key={student.id}>
-                <td className="px-6 py-4 whitespace-nowrap">{student.student_id}</td>
+              <tr key={student._id}>
+                <td className="px-6 py-4 whitespace-nowrap">{student.studentId}</td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  {student.first_name} {student.last_name}
+                  {student.firstName} {student.lastName}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  {student.user_id}
+{student.userId.email}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  {new Date(student.enrollment_date).toLocaleDateString()}
+                  {new Date(student.enrollmentDate).toLocaleDateString()}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-right">
                   <Button
@@ -131,10 +137,10 @@ export function StudentList() {
                     onClick={() => {
                       setSelectedStudent(student);
                       setFormData({
-                        firstName: student.first_name,
-                        lastName: student.last_name,
-                        studentId: student.student_id,
-                        enrollmentDate: student.enrollment_date,
+                        firstName: student.firstName,
+                        lastName: student.lastName,
+                        studentId: student.studentId,
+                        enrollmentDate: formatDateForInput(student.enrollmentDate), // Format the date here
                         email: '',
                         password: '',
                       });
@@ -147,7 +153,7 @@ export function StudentList() {
                     variant="outline"
                     size="sm"
                     className="text-red-600 hover:text-red-700"
-                    onClick={() => handleDelete(student.id)}
+                    onClick={() => handleDelete(student._id)}
                   >
                     <Trash2 className="w-4 h-4" />
                   </Button>
