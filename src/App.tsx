@@ -11,60 +11,49 @@ import { GradeList } from './components/grades/GradeList';
 import { useAuth } from './contexts/AuthContext';
 
 function PrivateRoute({ children }: { children: React.ReactNode }) {
-  const { user, loading } = useAuth();
+    const { user, loading } = useAuth();
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900"></div>
-      </div>
-    );
-  }
+    if (loading) {
+        return (
+            <div className="min-h-screen flex items-center justify-center">
+                <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900"></div>
+            </div>
+        );
+    }
 
-  if (!user) {
-    return <Navigate to="/auth" />;
-  }
-
-  return <>{children}</>;
+    return user ? <>{children}</> : <Navigate to="/auth" />;
 }
 
-function DashboardRouter() {
-  const { user } = useAuth();
-
-  return (
-    <Routes>
-      <Route path="/" element={
-        user?.role === 'ADMIN' ? <AdminDashboard /> : <StudentDashboard />
-      } />
-      <Route path="/courses" element={<CourseList />} />
-      <Route path="/students" element={<StudentList />} />
-      <Route path="/grades" element={<GradeList />} />
-    </Routes>
-  );
+function DashboardIndex() {
+    const { user } = useAuth();
+    return user?.role === 'ADMIN' ? <AdminDashboard /> : <StudentDashboard />;
 }
 
 function App() {
-  return (
-    <AuthProvider>
-      <Router>
-        <Routes>
-          <Route path="/auth" element={<AuthForm />} />
-          <Route path="/auth/callback" element={<OAuthCallback />} />
-          <Route
-            path="/dashboard/*"
-            element={
-              <PrivateRoute>
-                <DashboardLayout>
-                  <DashboardRouter />
-                </DashboardLayout>
-              </PrivateRoute>
-            }
-          />
-          <Route path="/" element={<Navigate to="/dashboard" />} />
-        </Routes>
-      </Router>
-    </AuthProvider>
-  );
+    return (
+        <AuthProvider>
+            <Router>
+                <Routes>
+                    <Route path="/auth" element={<AuthForm />} />
+                    <Route path="/auth/callback" element={<OAuthCallback />} />
+                    <Route
+                        path="/dashboard"
+                        element={
+                            <PrivateRoute>
+                                <DashboardLayout />
+                            </PrivateRoute>
+                        }
+                    >
+                        <Route index element={<DashboardIndex />} />
+                        <Route path="courses" element={<CourseList />} />
+                        <Route path="students" element={<StudentList />} />
+                        <Route path="grades" element={<GradeList />} />
+                    </Route>
+                    <Route path="/" element={<Navigate to="/dashboard" />} />
+                </Routes>
+            </Router>
+        </AuthProvider>
+    );
 }
 
 export default App;
